@@ -24,6 +24,7 @@ This repository contains Swift community-maintained implementation over [OpenAI]
         - [Create Image Edit](#create-image-edit)
         - [Create Image Variation](#create-image-variation)
     - [Audio](#audio)
+        - [Audio Create Speech](#audio-create-speech)
         - [Audio Transcriptions](#audio-transcriptions)
         - [Audio Translations](#audio-translations)
     - [Edits](#edits)
@@ -471,7 +472,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImagesEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
+let query = ImageEditQuery(image: data, fileName: "whitecat.png", prompt: "White cat with heterochromia sitting on the kitchen table with a bowl of food", n: 1, size: "1024x1024")
 openAI.imageEdits(query: query) { result in
   //Handle result here
 }
@@ -505,7 +506,7 @@ Uses the ImagesResult response similarly to ImagesQuery.
 
 ```swift
 let data = image.pngData()
-let query = ImagesVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
+let query = ImageVariationQuery(image: data, fileName: "whitecat.png", n: 1, size: "1024x1024")
 openAI.imageVariations(query: query) { result in
   //Handle result here
 }
@@ -522,6 +523,48 @@ The speech to text API provides two endpoints, transcriptions and translations, 
 Transcribe audio into whatever language the audio is in.
 Translate and transcribe the audio into english.
 File uploads are currently limited to 25 MB and the following input file types are supported: mp3, mp4, mpeg, mpga, m4a, wav, and webm.
+
+#### Audio Create Speech
+
+This function sends an `AudioSpeechQuery` to the OpenAI API to create audio speech from text using a specific voice and format. 
+
+[Learn more about voices.](https://platform.openai.com/docs/guides/text-to-speech/voice-options)  
+[Learn more about models.](https://platform.openai.com/docs/models/tts)
+
+**Request:**  
+
+```swift
+public struct AudioSpeechQuery: Codable, Equatable {
+    //...
+    public let model: Model // tts-1 or tts-1-hd  
+    public let input: String
+    public let voice: AudioSpeechVoice
+    public let responseFormat: AudioSpeechResponseFormat
+    public let speed: String? // Initializes with Double?
+    //...
+}
+```
+
+**Response:**
+
+```swift
+/// Audio data for one of the following formats :`mp3`, `opus`, `aac`, `flac`
+public let audioData: Data?
+```
+
+**Example:**   
+
+```swift
+let query = AudioSpeechQuery(model: .tts_1, input: "Hello, world!", voice: .alloy, responseFormat: .mp3, speed: 1.0)
+
+openAI.audioCreateSpeech(query: query) { result in
+    // Handle response here
+}
+//or
+let result = try await openAI.audioCreateSpeech(query: query)
+```
+[OpenAI Create Speech – Documentation](https://platform.openai.com/docs/api-reference/audio/createSpeech)
+
 
 #### Audio Transcriptions
 
