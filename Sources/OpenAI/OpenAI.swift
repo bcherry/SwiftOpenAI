@@ -221,8 +221,13 @@ extension OpenAI {
     func buildURL(path: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"
-        components.host = configuration.host
-        components.path = path
+        let hostParts = configuration.host.components(separatedBy: "/")
+        components.host = hostParts.first
+        if hostParts.count > 0 {
+            components.path = "/" + hostParts[1] + path
+        } else {
+            components.path = path
+        }
         return components.url!
     }
 }
